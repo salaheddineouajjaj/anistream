@@ -1,0 +1,55 @@
+name: 🔍 Project Health Check
+
+on:
+  schedule:
+    - cron: '0 10 * * 3'   # Every Wednesday at 11:00 Morocco time
+    - cron: '0 10 * * 6'   # Every Saturday  at 11:00 Morocco time
+
+  # Also run on every push to main (catches errors immediately)
+  push:
+    branches: [main]
+
+  # Allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    name: 🧪 Type Check + Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔎 TypeScript type check
+        run: npx tsc --noEmit
+        # This catches all TypeScript errors without building
+
+      - name: 🏗️ Vite production build
+        run: npm run build
+        # This catches any build/bundle errors
+
+      - name: ✅ Report success
+        if: success()
+        run: |
+          echo "=================================="
+          echo "✅ All checks passed!"
+          echo "  → TypeScript: No errors"
+          echo "  → Build: Successful"
+          echo "=================================="
+
+      - name: ❌ Report failure
+        if: failure()
+        run: |
+          echo "=================================="
+          echo "❌ Check failed! Review the logs above."
+          echo "=================================="
