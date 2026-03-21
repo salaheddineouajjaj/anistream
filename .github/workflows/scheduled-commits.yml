@@ -1,0 +1,110 @@
+name: 🎌 Scheduled Activity Commits
+
+on:
+  schedule:
+    # Runs at random-ish times Mon–Sat to look natural
+    # All times are UTC (add 1h for Morocco / add 3h for Gulf)
+    - cron: '27 9 * * 1'   # Monday    10:27 Morocco
+    - cron: '15 14 * * 2'  # Tuesday   15:15 Morocco
+    - cron: '42 11 * * 3'  # Wednesday 12:42 Morocco
+    - cron: '08 16 * * 4'  # Thursday  17:08 Morocco
+    - cron: '55 10 * * 5'  # Friday    11:55 Morocco
+    - cron: '30 13 * * 6'  # Saturday  14:30 Morocco
+
+  # Also allow running it manually from GitHub → Actions tab
+  workflow_dispatch:
+
+jobs:
+  auto-commit:
+    name: 📝 Update Activity Log
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🕐 Update activity log
+        run: |
+          # Create the activity log if it doesn't exist
+          mkdir -p .github
+
+          # Anime quotes to rotate through (makes commits look natural)
+          QUOTES=(
+            "The world isn't perfect, but it's still beautiful. — FMA Brotherhood"
+            "People's lives don't end when they die. It ends when they lose faith. — Itachi"
+            "Hard work is worthless for those that don't believe in themselves. — Naruto"
+            "A dropout will beat a genius through hard work. — Rock Lee"
+            "If you don't take risks, you can't create a future. — Monkey D. Luffy"
+            "It's not the face that makes someone a monster — it's the choices they make. — Naruto"
+            "Power comes in response to a need, not a desire. — Goku"
+            "The only way to truly escape the mundane is for you to constantly be evolving. — Gintoki"
+            "Whatever you lose, you'll find it again. But what you throw away, you'll never get back. — Kenshin"
+            "I am the hope of the universe. — Goku"
+            "Push through the pain. Giving up hurts more. — Vegeta"
+            "A lesson without pain is meaningless. — Edward Elric"
+            "If you can't find a reason to fight, then you shouldn't be fighting. — Akame"
+            "People become stronger because they have things they cannot give up. — Ichigo"
+            "Fear is not evil. It tells you what your weakness is. — Gildarts"
+          )
+
+          # Pick a quote based on the current day-of-year (cycles through them)
+          DAY_OF_YEAR=$(date +%j)
+          QUOTE_INDEX=$(( DAY_OF_YEAR % ${#QUOTES[@]} ))
+          SELECTED_QUOTE="${QUOTES[$QUOTE_INDEX]}"
+
+          # Get date info
+          DATE=$(date '+%Y-%m-%d')
+          TIME=$(date '+%H:%M UTC')
+          DAY=$(date '+%A')
+          WEEK=$(date '+%V')
+
+          # Write the activity log
+          cat > .github/ACTIVITY.md << EOF
+          # 🎌 ANISTREAM — Activity Log
+
+          > Auto-updated by GitHub Actions to track project activity.
+
+          ## 📅 Last Updated
+          - **Date:** ${DATE}
+          - **Time:** ${TIME}
+          - **Day:** ${DAY} (Week ${WEEK})
+
+          ## 💬 Daily Quote
+          > *"${SELECTED_QUOTE}"*
+
+          ## 📊 Project Stats
+          - **Pages:** 5 (Home, Browse, Details, Watch, Profile)
+          - **Streaming Servers:** 6 (VidSrc, MultiEmbed, MoviesAPI, VidSrc-2, 2Embed, VidSrc-in)
+          - **Anime in TMDB map:** 100+
+          - **Motion hooks:** 7 custom hooks
+          - **Status:** 🟢 Active Development
+
+          ## 🔗 Links
+          - [Repository](https://github.com/salaheddineouajjaj/anistream)
+          - Built with React 19 + TypeScript + Vite + Anime.js
+          EOF
+
+          echo "✅ Activity log updated for ${DATE}"
+
+      - name: 📤 Commit and push
+        run: |
+          git config --global user.name "salaheddineouajjaj"
+          git config --global user.email "salaheddineouajjaj@users.noreply.github.com"
+
+          git add .github/ACTIVITY.md
+
+          # Only commit if there are actual changes
+          if git diff --staged --quiet; then
+            echo "⏭️ No changes to commit — skipping."
+          else
+            DATE=$(date '+%Y-%m-%d')
+            DAY=$(date '+%A')
+            git commit -m "🎌 activity update — ${DAY} ${DATE} [skip ci]"
+            git push
+            echo "✅ Committed and pushed!"
+          fi
