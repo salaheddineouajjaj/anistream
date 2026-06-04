@@ -3,12 +3,12 @@
 > Auto-updated by GitHub Actions to track project activity.
 
 ## 📅 Last Updated
-- **Date:** 2026-06-03
-- **Time:** 16:04 UTC
-- **Day:** Wednesday (Week 23)
+- **Date:** 2026-06-04
+- **Time:** 18:27 UTC
+- **Day:** Thursday (Week 23)
 
 ## 💬 Daily Quote
-> *"If you don't take risks, you can't create a future. — Monkey D. Luffy"*
+> *"It's not the face that makes someone a monster — it's the choices they make. — Naruto"*
 
 ## 📊 Project Stats
 - **Pages:** 5 (Home, Browse, Details, Watch, Profile)
